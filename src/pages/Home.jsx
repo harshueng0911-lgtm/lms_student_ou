@@ -1,7 +1,7 @@
 import React from 'react';
 import { BookOpen, Users, LayoutDashboard, Clock } from 'lucide-react';
 
-import vcImage from '../assets/vice-chanceller.jpg';
+import vcImage from '../assets/Vice-Chanceller.jpg';
 import principalImage from '../assets/principal.jpg';
 import campusImage from '../assets/osmania.jpg';
 
