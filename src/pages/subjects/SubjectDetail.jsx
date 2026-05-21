@@ -538,8 +538,21 @@ const SubjectDetail = () => {
                               {/* Videos */}
                               {unit.videos.map((video) => {
 
-  const relatedPdf = unit.pdfs[0];
-  const relatedAssessment = unit.assessments[0];
+    const relatedPdf = unit.pdfs.find(
+      pdf =>
+        pdf.subject === video.subject &&
+        pdf.unit === video.unit &&
+        pdf.title?.trim().toLowerCase() ===
+        video.title?.trim().toLowerCase()
+    );
+
+  const relatedAssessments = unit.assessments.filter(
+    assessment =>
+      assessment.subject === video.subject &&
+      assessment.unit === video.unit &&
+      assessment.title?.trim().toLowerCase() ===
+      video.title?.trim().toLowerCase()
+  );
 
   const isSelected =
     selectedLesson?.id === video.id;
@@ -606,11 +619,11 @@ const SubjectDetail = () => {
           )}
 
           {/* ASSESSMENT ICON */}
-          {relatedAssessment && (
+          {relatedAssessments.length > 0 && (
 
             <Link
-              to={`/dashboard/assignments/${relatedAssessment.id}`}
-              className="w-9 h-9 rounded-lg bg-orange-50 hover:bg-orange-100 flex items-center justify-center transition-colors"
+              to={`/dashboard/assignments/${relatedAssessments[0].id}`}
+              className="relative w-9 h-9 rounded-lg bg-orange-50 hover:bg-orange-100 flex items-center justify-center transition-colors"
             >
 
               <span className="text-orange-600 text-sm font-bold">

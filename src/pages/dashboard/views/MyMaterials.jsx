@@ -87,7 +87,14 @@ const SkeletonCard = () => (
 // ── Main view ─────────────────────────────────────────────────────────────────
 const MyMaterials = () => {
   const { studentInfo } = useOutletContext();
-  const { subjects, allVideos, allPdfs, isLoading, error } = useStudentMaterials();
+  const {
+  subjects,
+  allVideos,
+  allPdfs,
+  allAssignments,
+  isLoading,
+  error
+} = useStudentMaterials();
   const [search, setSearch] = useState('');
   const [semesterFilter, setSemesterFilter] = useState('');
     useEffect(() => {
@@ -130,24 +137,52 @@ const MyMaterials = () => {
 
     const filteredVideos = allVideos.filter(matchItem);
     const filteredPdfs   = allPdfs.filter(matchItem);
+    const filteredAssignments = allAssignments.filter(matchItem);
 
     // Re-group filtered materials
     const subjectMap = {};
     const addItem = (item, type) => {
-      const subject = item.subject || 'General';
-      const unit    = item.unit    || 'General';
-      if (!subjectMap[subject]) subjectMap[subject] = { name: subject, videos: [], pdfs: [], units: {} };
-      if (!subjectMap[subject].units[unit]) subjectMap[subject].units[unit] = { name: unit, videos: [], pdfs: [] };
-      if (type === 'video') {
-        subjectMap[subject].videos.push(item);
-        subjectMap[subject].units[unit].videos.push(item);
-      } else {
-        subjectMap[subject].pdfs.push(item);
-        subjectMap[subject].units[unit].pdfs.push(item);
-      }
+
+  const subject = item.subject || 'General';
+  const unit = item.unit || 'General';
+
+  if (!subjectMap[subject]) {
+    subjectMap[subject] = {
+      name: subject,
+      videos: [],
+      pdfs: [],
+      assignments: [],
+      units: {}
     };
+  }
+
+  if (!subjectMap[subject].units[unit]) {
+    subjectMap[subject].units[unit] = {
+      name: unit,
+      videos: [],
+      pdfs: [],
+      assignments: []
+    };
+  }
+
+  if (type === 'video') {
+    subjectMap[subject].videos.push(item);
+    subjectMap[subject].units[unit].videos.push(item);
+  }
+
+  else if (type === 'pdf') {
+    subjectMap[subject].pdfs.push(item);
+    subjectMap[subject].units[unit].pdfs.push(item);
+  }
+
+  else if (type === 'assignment') {
+    subjectMap[subject].assignments.push(item);
+    subjectMap[subject].units[unit].assignments.push(item);
+  }
+};
     filteredVideos.forEach(v => addItem(v, 'video'));
     filteredPdfs.forEach(p   => addItem(p, 'pdf'));
+    filteredAssignments.forEach(a => addItem(a, 'assignment'));
     return Object.values(subjectMap).map(s => ({ ...s, units: Object.values(s.units) }));
   })();
 
