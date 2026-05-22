@@ -15,7 +15,7 @@ const Sidebar = () => {
   const learningLinks = [
     { icon: LayoutDashboard, label: 'Overview', path: '/dashboard' },
     { icon: BookOpen, label: 'My Materials', path: '/dashboard/materials' },
-    { icon: ClipboardList, label: 'Assignments', path: '/dashboard/assignments' },
+    { icon: ClipboardList, label: 'Assessments', path: '/dashboard/assignments' },
     { icon: Bookmark, label: 'Saved Materials', path: '/dashboard/saved' },
   ];
 

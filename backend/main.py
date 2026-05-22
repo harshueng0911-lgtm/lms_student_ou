@@ -65,7 +65,7 @@ def get_file_id(assessment_id: str):
     return res.data[0]["file_id"]
 
 
-# ---------------- ASSIGNMENTS (FIXED CORE LOGIC) ----------------
+# ---------------- ASSIGNMENTS (FIXED) ----------------
 @app.get("/assignments/{student_id}")
 def get_assignments(student_id: str):
     try:
@@ -81,47 +81,36 @@ def get_assignments(student_id: str):
 
         student = stu.data[0]
 
-        # ✅ CLEAN VALUES
+        # SAFE VALUES
         student_department = str(
             student.get("department", "")
         ).strip()
 
-        student_year = int(
-            student.get("year", 0)
-        )
-
-        student_semester = int(
-            student.get("semester", 0)
-        )
+        student_year = student.get("year")
+        student_semester = student.get("semester")
 
         print("🎓 STUDENT:")
         print(
-            student_department,
-            student_year,
-            student_semester
+            "Department:", student_department,
+            "Year:", student_year,
+            "Semester:", student_semester
         )
 
-    # ================= GET ALL ASSESSMENTS =================
-        # Fetch all assignments inside student department
-        # Frontend will handle semester filtering
-
+        # ================= GET ASSESSMENTS =================
+        # Fetch all assessments for the student's department
+        # Frontend handles year/semester filtering
         ass_res = supabase.table("assessments") \
             .select("*") \
             .eq("department", student_department) \
             .order("year") \
             .order("semester") \
             .execute()
-        
 
         all_assignments = ass_res.data or []
 
-        print(f"📚 TOTAL ASSESSMENTS: {len(all_assignments)}")
+        print(f"📚 TOTAL ASSESSMENTS FOUND: {len(all_assignments)}")
 
-        filtered = all_assignments
-        
-        print(f"✅ FILTERED ASSIGNMENTS: {len(filtered)}")
-
-        # ================= ATTEMPTS =================
+        # ================= GET ATTEMPTS =================
         att_res = supabase.table("student_attempts") \
             .select("assessment_id, score, total") \
             .eq("student_id", student_id) \
@@ -132,14 +121,19 @@ def get_assignments(student_id: str):
             for a in (att_res.data or [])
         }
 
-        # ✅ MERGE ATTEMPTS
-        for a in filtered:
-         a["attempt"] = attempts.get(a["id"], None)
+        # ================= MERGE ATTEMPTS =================
+        for assignment in all_assignments:
+            assignment["attempt"] = attempts.get(
+                assignment["id"],
+                None
+            )
 
-        return filtered
+        print(f"✅ RETURNING ASSIGNMENTS: {len(all_assignments)}")
+
+        return all_assignments
 
     except Exception as e:
-        print("❌ ASSIGNMENT ERROR:", e)
+        print("❌ ASSIGNMENT ERROR:", str(e))
         return []
 
 # ---------------- QUESTIONS ----------------
